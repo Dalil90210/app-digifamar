@@ -10,6 +10,10 @@ export default defineConfig({
     setupFiles: ["./src/test/setup.ts"],
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
     css: false,
+    // The default "forks" pool can't reliably spawn child-process workers on
+    // this Windows box — they time out before starting ("Timeout starting
+    // forks runner"). Worker threads start cleanly here, so use them instead.
+    pool: "threads",
     // This Windows box can't spin up a jsdom environment in every worker at
     // once — running all test files in parallel times the workers out and the
     // whole suite fails to start. Run files sequentially in a single worker so
