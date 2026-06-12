@@ -3,12 +3,21 @@
 
 import { useEffect, useRef, useState } from "react";
 
-const BROWSER_KEY = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as
+const MANAGED_KEY = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as
   | string
   | undefined;
 const TRACKING_ID = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as
   | string
   | undefined;
+const OVERRIDE_STORAGE_KEY = "dfm:gmaps_browser_key_override";
+
+function getBrowserKey(): string | undefined {
+  if (typeof window !== "undefined") {
+    const override = window.localStorage?.getItem(OVERRIDE_STORAGE_KEY);
+    if (override) return override;
+  }
+  return MANAGED_KEY;
+}
 
 declare global {
   interface Window {
@@ -23,10 +32,10 @@ export function loadGoogleMaps(): Promise<void> {
   if (typeof window === "undefined") return Promise.resolve();
   if (window.google?.maps && typeof window.google.maps.importLibrary === "function") return Promise.resolve();
   if (window.__dgfMapsLoader) return window.__dgfMapsLoader;
+  const BROWSER_KEY = getBrowserKey();
   if (!BROWSER_KEY) {
     return Promise.reject(new Error("Google Maps browser key not configured"));
   }
-
   window.__dgfMapsLoader = new Promise<void>((resolve, reject) => {
     window.__dgfMapsCallback = () => resolve();
     const params = new URLSearchParams({

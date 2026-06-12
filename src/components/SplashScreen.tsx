@@ -1,5 +1,6 @@
 import { useMemo, useEffect, useState } from "react";
-import logoSrc from "@/assets/logo.png";
+import logoAsset from "@/assets/logo.png.asset.json";
+const logoSrc = logoAsset.url;
 
 const SPLASH_KEY = "dgf_splash_v1";
 

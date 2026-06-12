@@ -30,6 +30,7 @@ import { Route as OrdersIndexRouteImport } from './routes/orders.index'
 import { Route as ChatIndexRouteImport } from './routes/chat.index'
 import { Route as SignupFarmerRouteImport } from './routes/signup.farmer'
 import { Route as SignupBuyerRouteImport } from './routes/signup.buyer'
+import { Route as SettingsMapsRouteImport } from './routes/settings.maps'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as OrdersIdRouteImport } from './routes/orders.$id'
 import { Route as LendersLoginRouteImport } from './routes/lenders/login'
@@ -150,6 +151,11 @@ const SignupBuyerRoute = SignupBuyerRouteImport.update({
   path: '/signup/buyer',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsMapsRoute = SettingsMapsRouteImport.update({
+  id: '/settings/maps',
+  path: '/settings/maps',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProductIdRoute = ProductIdRouteImport.update({
   id: '/product/$id',
   path: '/product/$id',
@@ -249,6 +255,7 @@ export interface FileRoutesByFullPath {
   '/lenders/login': typeof LendersLoginRoute
   '/orders/$id': typeof OrdersIdRoute
   '/product/$id': typeof ProductIdRoute
+  '/settings/maps': typeof SettingsMapsRoute
   '/signup/buyer': typeof SignupBuyerRoute
   '/signup/farmer': typeof SignupFarmerRoute
   '/chat/': typeof ChatIndexRoute
@@ -286,6 +293,7 @@ export interface FileRoutesByTo {
   '/lenders/login': typeof LendersLoginRoute
   '/orders/$id': typeof OrdersIdRoute
   '/product/$id': typeof ProductIdRoute
+  '/settings/maps': typeof SettingsMapsRoute
   '/signup/buyer': typeof SignupBuyerRoute
   '/signup/farmer': typeof SignupFarmerRoute
   '/chat': typeof ChatIndexRoute
@@ -324,6 +332,7 @@ export interface FileRoutesById {
   '/lenders/login': typeof LendersLoginRoute
   '/orders/$id': typeof OrdersIdRoute
   '/product/$id': typeof ProductIdRoute
+  '/settings/maps': typeof SettingsMapsRoute
   '/signup/buyer': typeof SignupBuyerRoute
   '/signup/farmer': typeof SignupFarmerRoute
   '/chat/': typeof ChatIndexRoute
@@ -363,6 +372,7 @@ export interface FileRouteTypes {
     | '/lenders/login'
     | '/orders/$id'
     | '/product/$id'
+    | '/settings/maps'
     | '/signup/buyer'
     | '/signup/farmer'
     | '/chat/'
@@ -400,6 +410,7 @@ export interface FileRouteTypes {
     | '/lenders/login'
     | '/orders/$id'
     | '/product/$id'
+    | '/settings/maps'
     | '/signup/buyer'
     | '/signup/farmer'
     | '/chat'
@@ -437,6 +448,7 @@ export interface FileRouteTypes {
     | '/lenders/login'
     | '/orders/$id'
     | '/product/$id'
+    | '/settings/maps'
     | '/signup/buyer'
     | '/signup/farmer'
     | '/chat/'
@@ -475,6 +487,7 @@ export interface RootRouteChildren {
   LendersLoginRoute: typeof LendersLoginRoute
   OrdersIdRoute: typeof OrdersIdRoute
   ProductIdRoute: typeof ProductIdRoute
+  SettingsMapsRoute: typeof SettingsMapsRoute
   SignupBuyerRoute: typeof SignupBuyerRoute
   SignupFarmerRoute: typeof SignupFarmerRoute
   ChatIndexRoute: typeof ChatIndexRoute
@@ -633,6 +646,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignupBuyerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings/maps': {
+      id: '/settings/maps'
+      path: '/settings/maps'
+      fullPath: '/settings/maps'
+      preLoaderRoute: typeof SettingsMapsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/product/$id': {
       id: '/product/$id'
       path: '/product/$id'
@@ -774,6 +794,7 @@ const rootRouteChildren: RootRouteChildren = {
   LendersLoginRoute: LendersLoginRoute,
   OrdersIdRoute: OrdersIdRoute,
   ProductIdRoute: ProductIdRoute,
+  SettingsMapsRoute: SettingsMapsRoute,
   SignupBuyerRoute: SignupBuyerRoute,
   SignupFarmerRoute: SignupFarmerRoute,
   ChatIndexRoute: ChatIndexRoute,
@@ -785,13 +806,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
