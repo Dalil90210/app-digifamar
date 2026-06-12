@@ -1,1 +1,17 @@
 project_id = "qegnvdgnlhnzfnzaifaw"
+
+# Edge Functions. Each function authenticates the caller itself (Authorization:
+# Bearer <user jwt>) and additionally enforces ownership / admin role in code,
+# so verify_jwt stays on (the platform rejects unauthenticated calls at the edge
+# before our handler even runs).
+[functions.send-otp]
+verify_jwt = true
+
+[functions.verify-otp]
+verify_jwt = true
+
+[functions.calculate-distance]
+verify_jwt = true
+
+[functions.release-escrow]
+verify_jwt = true

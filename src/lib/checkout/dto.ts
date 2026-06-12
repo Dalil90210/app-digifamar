@@ -11,6 +11,12 @@ export const CheckoutItemDto = z.object({
   /** Unit price in integer cents. */
   unitPriceCents: z.number().int().nonnegative().max(100_000_000),
   quantity: z.number().int().positive().max(99),
+  /**
+   * Seller's auth.users id, when the catalog knows it. Drives orders.farmer_id
+   * and therefore the escrow payout. Optional: the current mock marketplace
+   * ships slug farm ids and no real user id, so this is omitted there.
+   */
+  farmerId: z.string().uuid().optional(),
 });
 export type CheckoutItemDto = z.infer<typeof CheckoutItemDto>;
 

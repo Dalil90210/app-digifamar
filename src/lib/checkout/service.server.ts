@@ -36,6 +36,15 @@ export class CheckoutService {
     );
     const breakdown = computeFees(subtotalCents);
 
+    // Resolve the farmer to pay on release. Only set when every line item names
+    // the same seller (a single-farmer order); mixed or unknown sellers leave it
+    // null, and the escrow-release flow flags such an order rather than mispay.
+    // With the current mock catalog (slug farm ids, no farmerId) this is null.
+    const farmerIds = new Set(
+      input.items.map((i) => i.farmerId).filter((v): v is string => !!v),
+    );
+    const farmerId = farmerIds.size === 1 ? [...farmerIds][0] : null;
+
     const orderId = crypto.randomUUID();
     const itemCount = input.items.reduce((n, i) => n + i.quantity, 0);
     const description =
@@ -59,6 +68,7 @@ export class CheckoutService {
       const { error } = await db.from("orders").insert({
         id: orderId,
         buyer_id: ctx.userId,
+        farmer_id: farmerId,
         status: "in_escrow",
         items: input.items,
         subtotal_cents: breakdown.subtotalCents,
