@@ -34,6 +34,11 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { getFarm, getProduct } from "@/lib/mock-data";
+import {
+  scanForContactInfo,
+  describeCategories,
+  CONTACT_BLOCK_WARNING,
+} from "@/lib/chat/contact-guard";
 import { haversineDistance, useGeolocation } from "@/hooks/use-geolocation";
 import { LiveTrackingMap } from "@/components/LiveTrackingMap";
 
@@ -686,6 +691,18 @@ function FarmChatPage() {
   const send = () => {
     const text = input.trim();
     if (!text) return;
+
+    // Critical Rule: keep buyer/farmer contact details off the wire.
+    const scan = scanForContactInfo(text);
+    if (scan.hasContactInfo) {
+      toast.error("Message blocked", {
+        description: `${CONTACT_BLOCK_WARNING} (Detected: ${describeCategories(
+          scan.categories,
+        )}.)`,
+      });
+      return; // keep the text so the sender can rephrase
+    }
+
     setMessages((prev) => [
       ...prev,
       { id: `${role}-${Date.now()}`, role, text, ts: Date.now(), kind: "text" },

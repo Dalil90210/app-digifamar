@@ -5,8 +5,14 @@ import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  scanForContactInfo,
+  describeCategories,
+  CONTACT_BLOCK_WARNING,
+} from "@/lib/chat/contact-guard";
 
 export const Route = createFileRoute("/chat/$productId")({
   head: () => ({
@@ -169,6 +175,18 @@ function ChatThread() {
   const handleSend = async () => {
     const text = input.trim();
     if (!text || !user || sending) return;
+
+    // Critical Rule: never let personal contact info leave the platform.
+    const scan = scanForContactInfo(text);
+    if (scan.hasContactInfo) {
+      toast.error("Message blocked", {
+        description: `${CONTACT_BLOCK_WARNING} (Detected: ${describeCategories(
+          scan.categories,
+        )}.)`,
+      });
+      return; // keep the text in the box so the user can edit it
+    }
+
     setSending(true);
     setInput("");
     try {
