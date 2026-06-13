@@ -3,14 +3,20 @@
  *
  * Every order carries two fees on top of the item subtotal, both shown to the
  * buyer at checkout and both computed on the item subtotal:
- *   - Platform fee: 8%   (DiGiFaMaR marketplace fee)
+ *   - Platform fee: 10%  (DiGiFaMaR marketplace fee — the farmer nets the rest)
  *   - Escrow fee:   3.25% (Escrow.com-protected settlement)
+ *
+ * This 10% platform rate is the single source of truth for the unified
+ * order/escrow flow and is mirrored by:
+ *   - supabase/functions/_shared/fees.ts (payout math), and
+ *   - the validate_order_insert() DB trigger (authoritative server recompute).
+ * Keep all three in sync.
  *
  * All math is done in integer cents to avoid floating-point drift, then
  * formatted for display at the edges.
  */
 
-export const PLATFORM_FEE_RATE = 0.08;
+export const PLATFORM_FEE_RATE = 0.1;
 export const ESCROW_FEE_RATE = 0.0325;
 
 export type FeeBreakdown = {

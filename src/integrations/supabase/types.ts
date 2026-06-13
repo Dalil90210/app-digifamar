@@ -267,7 +267,6 @@ export type Database = {
           notes: string | null
           platform_fee_cents: number
           qty: number
-          release_code_hash: string | null
           shipping_address: string | null
           status: string
           subtotal_cents: number
@@ -285,7 +284,6 @@ export type Database = {
           notes?: string | null
           platform_fee_cents?: number
           qty: number
-          release_code_hash?: string | null
           shipping_address?: string | null
           status?: string
           subtotal_cents: number
@@ -303,7 +301,6 @@ export type Database = {
           notes?: string | null
           platform_fee_cents?: number
           qty?: number
-          release_code_hash?: string | null
           shipping_address?: string | null
           status?: string
           subtotal_cents?: number

@@ -9,23 +9,23 @@ import {
 } from "./fees";
 
 describe("checkout fees", () => {
-  it("uses an 8% platform fee and a 3.25% escrow fee", () => {
-    expect(PLATFORM_FEE_RATE).toBe(0.08);
+  it("uses a 10% platform fee and a 3.25% escrow fee", () => {
+    expect(PLATFORM_FEE_RATE).toBe(0.1);
     expect(ESCROW_FEE_RATE).toBe(0.0325);
   });
 
   it("computes platform + escrow fees on the subtotal", () => {
     const f = computeFees(10_000); // $100.00
-    expect(f.platformFeeCents).toBe(800); // 8%
+    expect(f.platformFeeCents).toBe(1_000); // 10%
     expect(f.escrowFeeCents).toBe(325); // 3.25%
-    expect(f.totalCents).toBe(11_125);
+    expect(f.totalCents).toBe(11_325);
   });
 
   it("rounds fees to the nearest cent", () => {
     const f = computeFees(550); // $5.50
-    expect(f.platformFeeCents).toBe(44); // round(44.0)
+    expect(f.platformFeeCents).toBe(55); // round(55.0)
     expect(f.escrowFeeCents).toBe(18); // round(17.875)
-    expect(f.totalCents).toBe(550 + 44 + 18);
+    expect(f.totalCents).toBe(550 + 55 + 18);
   });
 
   it("total always equals subtotal + both fees", () => {
@@ -45,8 +45,8 @@ describe("checkout fees", () => {
   });
 
   it("formats cents and rates for display", () => {
-    expect(formatCents(11_125)).toBe("$111.25");
-    expect(formatRate(PLATFORM_FEE_RATE)).toBe("8%");
+    expect(formatCents(11_325)).toBe("$113.25");
+    expect(formatRate(PLATFORM_FEE_RATE)).toBe("10%");
     expect(formatRate(ESCROW_FEE_RATE)).toBe("3.25%");
   });
 });
