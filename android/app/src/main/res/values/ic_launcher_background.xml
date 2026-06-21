@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="ic_launcher_background">@color/brand_green</color>
+    <!-- White so the colourful DiGiFaMaR leaf mark reads cleanly (matches the
+         legacy PNG launcher icons and the Play store icon). -->
+    <color name="ic_launcher_background">#FFFFFF</color>
 </resources>
