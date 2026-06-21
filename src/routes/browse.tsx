@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import {
   BadgeCheck,
@@ -17,6 +17,7 @@ import { SiteLayout } from "@/components/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ChatNegotiateButton } from "@/components/ChatNegotiateButton";
 import { searchBrowse, type BrowseResults } from "@/lib/browse.functions";
 import {
   geocodeAddress,
@@ -38,8 +39,7 @@ export const Route = createFileRoute("/browse")({
       { property: "og:title", content: "Browse verified farms | DiGiFaMaR" },
       {
         property: "og:description",
-        content:
-          "Search verified American farms and fresh listings within 50 miles of any ZIP.",
+        content: "Search verified American farms and fresh listings within 50 miles of any ZIP.",
       },
     ],
   }),
@@ -96,9 +96,7 @@ function Browse() {
 
   // Autocomplete suggestions (only when user is typing a location-ish query)
   const [showSuggest, setShowSuggest] = useState(false);
-  const { suggestions, loading: autoLoading } = usePlacesAutocomplete(
-    showSuggest ? input : "",
-  );
+  const { suggestions, loading: autoLoading } = usePlacesAutocomplete(showSuggest ? input : "");
   const suggestBoxRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -108,10 +106,7 @@ function Browse() {
   // Close suggestions on outside click
   useEffect(() => {
     function onDoc(e: MouseEvent) {
-      if (
-        suggestBoxRef.current &&
-        !suggestBoxRef.current.contains(e.target as Node)
-      ) {
+      if (suggestBoxRef.current && !suggestBoxRef.current.contains(e.target as Node)) {
         setShowSuggest(false);
       }
     }
@@ -156,9 +151,7 @@ function Browse() {
             });
           }
         } catch (err) {
-          setGeoError(
-            err instanceof Error ? err.message : "Reverse lookup failed",
-          );
+          setGeoError(err instanceof Error ? err.message : "Reverse lookup failed");
         } finally {
           setGeoLoading(false);
         }
@@ -223,13 +216,7 @@ function Browse() {
   const clearOrigin = () => setOrigin(null);
 
   const results = useQuery<BrowseResults>({
-    queryKey: [
-      "browse-search",
-      debounced,
-      page,
-      origin?.lat ?? null,
-      origin?.lng ?? null,
-    ],
+    queryKey: ["browse-search", debounced, page, origin?.lat ?? null, origin?.lng ?? null],
     queryFn: () =>
       searchBrowse({
         data: {
@@ -245,17 +232,11 @@ function Browse() {
 
   const data = results.data;
   const totalPages = data
-    ? Math.max(
-        1,
-        Math.ceil(Math.max(data.totalFarms, data.totalListings) / data.pageSize),
-      )
+    ? Math.max(1, Math.ceil(Math.max(data.totalFarms, data.totalListings) / data.pageSize))
     : 1;
 
   const isEmpty =
-    !!data &&
-    data.farms.length === 0 &&
-    data.listings.length === 0 &&
-    !results.isFetching;
+    !!data && data.farms.length === 0 && data.listings.length === 0 && !results.isFetching;
 
   return (
     <SiteLayout>
@@ -375,7 +356,9 @@ function Browse() {
               </p>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_120px_140px_auto]">
                 <div>
-                  <Label htmlFor="m-city" className="sr-only">City</Label>
+                  <Label htmlFor="m-city" className="sr-only">
+                    City
+                  </Label>
                   <Input
                     id="m-city"
                     value={mCity}
@@ -384,7 +367,9 @@ function Browse() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="m-state" className="sr-only">State</Label>
+                  <Label htmlFor="m-state" className="sr-only">
+                    State
+                  </Label>
                   <Input
                     id="m-state"
                     value={mState}
@@ -394,7 +379,9 @@ function Browse() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="m-zip" className="sr-only">ZIP</Label>
+                  <Label htmlFor="m-zip" className="sr-only">
+                    ZIP
+                  </Label>
                   <Input
                     id="m-zip"
                     value={mZip}
@@ -404,11 +391,7 @@ function Browse() {
                   />
                 </div>
                 <Button onClick={handleManualSubmit} disabled={manualBusy}>
-                  {manualBusy ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    "Search this area"
-                  )}
+                  {manualBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Search this area"}
                 </Button>
               </div>
             </div>
@@ -432,9 +415,7 @@ function Browse() {
                 count={data.totalFarms}
               />
               {data.farms.length === 0 ? (
-                <p className="mt-3 text-sm text-muted-foreground">
-                  No farms match your search.
-                </p>
+                <p className="mt-3 text-sm text-muted-foreground">No farms match your search.</p>
               ) : (
                 <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {data.farms.map((f) => (
@@ -451,9 +432,7 @@ function Browse() {
                 count={data.totalListings}
               />
               {data.listings.length === 0 ? (
-                <p className="mt-3 text-sm text-muted-foreground">
-                  No listings match your search.
-                </p>
+                <p className="mt-3 text-sm text-muted-foreground">No listings match your search.</p>
               ) : (
                 <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {data.listings.map((l) => (
@@ -530,11 +509,7 @@ function SectionHeader({
   );
 }
 
-function FarmResultCard({
-  farm,
-}: {
-  farm: BrowseResults["farms"][number];
-}) {
+function FarmResultCard({ farm }: { farm: BrowseResults["farms"][number] }) {
   return (
     <Link
       to="/farm/$id"
@@ -557,9 +532,7 @@ function FarmResultCard({
         </p>
       )}
       {farm.description && (
-        <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
-          {farm.description}
-        </p>
+        <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{farm.description}</p>
       )}
       {farm.certifications.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-1">
@@ -577,47 +550,42 @@ function FarmResultCard({
   );
 }
 
-function ListingResultCard({
-  listing,
-}: {
-  listing: BrowseResults["listings"][number];
-}) {
+function ListingResultCard({ listing }: { listing: BrowseResults["listings"][number] }) {
   const price = (listing.price_cents / 100).toLocaleString("en-US", {
     style: "currency",
     currency: "USD",
   });
   return (
-    <Link
-      to="/farm/$id"
-      params={{ id: listing.farmer_id }}
-      className="block overflow-hidden rounded-xl border border-border bg-card transition-colors hover:bg-muted/40"
-    >
-      {listing.images[0] ? (
-        <img
-          src={listing.images[0]}
-          alt={listing.title}
-          loading="lazy"
-          className="aspect-[4/3] w-full object-cover"
-        />
-      ) : (
-        <div className="aspect-[4/3] w-full bg-muted" />
-      )}
-      <div className="p-4">
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="font-semibold leading-tight">{listing.title}</h3>
-          <span className="shrink-0 text-sm font-bold text-primary">
-            {price}
-            <span className="text-xs text-muted-foreground">/{listing.unit}</span>
-          </span>
+    <div className="overflow-hidden rounded-xl border border-border bg-card transition-colors hover:bg-muted/40">
+      <Link to="/farm/$id" params={{ id: listing.farmer_id }} className="block">
+        {listing.images[0] ? (
+          <img
+            src={listing.images[0]}
+            alt={listing.title}
+            loading="lazy"
+            className="aspect-[4/3] w-full object-cover"
+          />
+        ) : (
+          <div className="aspect-[4/3] w-full bg-muted" />
+        )}
+        <div className="p-4 pb-2">
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="font-semibold leading-tight">{listing.title}</h3>
+            <span className="shrink-0 text-sm font-bold text-primary">
+              {price}
+              <span className="text-xs text-muted-foreground">/{listing.unit}</span>
+            </span>
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {listing.category}
+            {listing.farm_name ? ` · ${listing.farm_name}` : ""}
+            {listing.distance_mi != null ? ` · ${listing.distance_mi.toFixed(1)} mi` : ""}
+          </p>
         </div>
-        <p className="mt-1 text-xs text-muted-foreground">
-          {listing.category}
-          {listing.farm_name ? ` · ${listing.farm_name}` : ""}
-          {listing.distance_mi != null
-            ? ` · ${listing.distance_mi.toFixed(1)} mi`
-            : ""}
-        </p>
+      </Link>
+      <div className="px-4 pb-4 pt-1">
+        <ChatNegotiateButton listing={listing} />
       </div>
-    </Link>
+    </div>
   );
 }

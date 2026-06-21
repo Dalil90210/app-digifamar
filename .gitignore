@@ -23,6 +23,12 @@ dist-ssr
 .wrangler/
 .dev.vars
 
+# Android signing — never commit these
+*.keystore
+*.jks
+keystore.properties
+android/keystore.properties
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

@@ -19,6 +19,7 @@ import {
   ShieldCheck,
   Truck,
   UserCog,
+  Wallet,
 } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -85,7 +86,7 @@ interface EscrowState {
   status: EscrowStatus;
   orderId: string;
   total: number;
-  method: "card" | "bank";
+  method: "card" | "paypal" | "bank";
   otp: string; // visible to buyer only
   paidAt: number;
   releasedAt?: number;
@@ -349,7 +350,7 @@ function FarmChatPage() {
     loadEscrow(farmId, productId),
   );
   const [showPay, setShowPay] = useState(false);
-  const [payMethod, setPayMethod] = useState<"card" | "bank">("card");
+  const [payMethod, setPayMethod] = useState<"card" | "paypal" | "bank">("card");
   const [paying, setPaying] = useState(false);
   const [showOtp, setShowOtp] = useState(false);
   const [deliveryState, setDeliveryState] = useState<DeliveryState>(() =>
@@ -956,7 +957,7 @@ function FarmChatPage() {
                   <Lock className="h-4 w-4" />
                   Funds Secured in Escrow
                   <span className="text-xs text-muted-foreground font-normal">
-                    · ${escrow.total.toFixed(2)} · {escrow.method === "card" ? "Card" : "Bank transfer"}
+                    · ${escrow.total.toFixed(2)} · {escrow.method === "card" ? "Card" : escrow.method === "paypal" ? "PayPal" : "Bank transfer"}
                   </span>
                 </div>
                 {role === "buyer" && (
@@ -1226,33 +1227,29 @@ function FarmChatPage() {
           </SheetHeader>
 
           <div className="mt-5 space-y-4">
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setPayMethod("card")}
-                className={`rounded-xl border p-4 text-left transition-colors ${
-                  payMethod === "card"
-                    ? "border-primary bg-primary/5"
-                    : "border-border bg-card hover:border-primary/40"
-                }`}
-              >
-                <CreditCard className="h-5 w-5 text-primary mb-2" />
-                <p className="text-sm font-semibold">Pay with Card</p>
-                <p className="text-[11px] text-muted-foreground">Visa, Mastercard, Verve</p>
-              </button>
-              <button
-                type="button"
-                onClick={() => setPayMethod("bank")}
-                className={`rounded-xl border p-4 text-left transition-colors ${
-                  payMethod === "bank"
-                    ? "border-primary bg-primary/5"
-                    : "border-border bg-card hover:border-primary/40"
-                }`}
-              >
-                <Building2 className="h-5 w-5 text-primary mb-2" />
-                <p className="text-sm font-semibold">Bank Transfer</p>
-                <p className="text-[11px] text-muted-foreground">Direct bank deposit</p>
-              </button>
+            <div className="grid grid-cols-3 gap-2">
+              {(
+                [
+                  { id: "card", label: "Card", sub: "Visa, Mastercard", Icon: CreditCard },
+                  { id: "paypal", label: "PayPal", sub: "PayPal balance", Icon: Wallet },
+                  { id: "bank", label: "Bank Transfer", sub: "Direct deposit", Icon: Building2 },
+                ] as const
+              ).map(({ id, label, sub, Icon }) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setPayMethod(id)}
+                  className={`rounded-xl border p-3 text-left transition-colors ${
+                    payMethod === id
+                      ? "border-primary bg-primary/5"
+                      : "border-border bg-card hover:border-primary/40"
+                  }`}
+                >
+                  <Icon className="h-5 w-5 text-primary mb-2" />
+                  <p className="text-sm font-semibold">{label}</p>
+                  <p className="text-[11px] text-muted-foreground leading-tight">{sub}</p>
+                </button>
+              ))}
             </div>
 
             <div className="rounded-xl border border-border bg-card p-4 space-y-1.5 text-sm">

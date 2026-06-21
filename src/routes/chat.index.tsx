@@ -24,14 +24,14 @@ interface Conversation {
   id: string;
   buyer_id: string;
   farmer_id: string;
-  farm_name: string;
+  farm_name: string | null;
   created_at: string;
-  updated_at: string;
+  last_message_at: string;
 }
 
 interface LastMessage {
   conversation_id: string;
-  content: string;
+  body: string;
   created_at: string;
   is_read: boolean;
   sender_id: string;
@@ -85,9 +85,9 @@ function ChatList() {
       try {
         const { data: convs } = await sb
           .from("conversations")
-          .select("id, buyer_id, farmer_id, farm_name, created_at, updated_at")
+          .select("id, buyer_id, farmer_id, farm_name, created_at, last_message_at")
           .or(`buyer_id.eq.${user.id},farmer_id.eq.${user.id}`)
-          .order("updated_at", { ascending: false });
+          .order("last_message_at", { ascending: false });
 
         if (cancelled) return;
         const list: Conversation[] = convs ?? [];
@@ -98,7 +98,7 @@ function ChatList() {
         const ids = list.map((c) => c.id);
         const { data: msgs } = await sb
           .from("messages")
-          .select("conversation_id, content, created_at, is_read, sender_id")
+          .select("conversation_id, body, created_at, is_read, sender_id")
           .in("conversation_id", ids)
           .order("created_at", { ascending: false });
 
@@ -157,7 +157,7 @@ function ChatList() {
                       <div className="relative shrink-0">
                         <div className="w-12 h-12 rounded-full bg-[#4ADE80]/15 border border-[#4ADE80]/25 flex items-center justify-center">
                           <span className="text-sm font-bold text-[#4ADE80]">
-                            {getInitials(conv.farm_name)}
+                            {getInitials(conv.farm_name ?? "Farm")}
                           </span>
                         </div>
                         {hasUnread && (
@@ -175,7 +175,7 @@ function ChatList() {
                                 : "text-[#F0FFF0]/80"
                             }`}
                           >
-                            {conv.farm_name}
+                            {conv.farm_name ?? "Farm"}
                           </p>
                           {last && (
                             <span className="text-[10px] text-[#7AAB7A] shrink-0">
@@ -191,8 +191,8 @@ function ChatList() {
                           }`}
                         >
                           {last
-                            ? last.content.slice(0, 40) +
-                              (last.content.length > 40 ? "…" : "")
+                            ? last.body.slice(0, 40) +
+                              (last.body.length > 40 ? "…" : "")
                             : "No messages yet"}
                         </p>
                       </div>

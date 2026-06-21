@@ -13,6 +13,7 @@ import {
   Clock,
   Phone,
   Star,
+  FlaskConical,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -128,10 +129,7 @@ const step1Schema = z.object({
     .refine((v) => isValidPhone(v), {
       message: "Enter a valid US phone number, e.g. (555) 123-4567",
     }),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .max(128),
+  password: z.string().min(8, "Password must be at least 8 characters").max(128),
 });
 
 const step2Schema = z.object({
@@ -206,18 +204,12 @@ function FarmerSignup() {
   const otpComplete = otp.every((d) => d.length === 1);
   const canSubmit = otpComplete && termsChecked && escrowChecked && !submitting;
 
-  const updateStep1 = <K extends keyof typeof step1>(
-    key: K,
-    value: (typeof step1)[K],
-  ) => {
+  const updateStep1 = <K extends keyof typeof step1>(key: K, value: (typeof step1)[K]) => {
     setStep1((p) => ({ ...p, [key]: value }));
     setStep1Errors((e) => ({ ...e, [key]: undefined }));
   };
 
-  const updateStep2 = <K extends keyof typeof step2>(
-    key: K,
-    value: (typeof step2)[K],
-  ) => {
+  const updateStep2 = <K extends keyof typeof step2>(key: K, value: (typeof step2)[K]) => {
     setStep2((p) => ({ ...p, [key]: value }));
     setStep2Errors((e) => ({ ...e, [key]: undefined }));
   };
@@ -230,10 +222,7 @@ function FarmerSignup() {
     if (digit && index < 5) otpRefs.current[index + 1]?.focus();
   };
 
-  const handleOtpKeyDown = (
-    index: number,
-    e: React.KeyboardEvent<HTMLInputElement>,
-  ) => {
+  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       otpRefs.current[index - 1]?.focus();
     }
@@ -325,6 +314,9 @@ function FarmerSignup() {
           data: {
             full_name: `${step1.firstName} ${step1.lastName}`,
             phone: normalizeToE164(step1.phone) ?? step1.phone,
+            // Role is assigned server-side by the handle_new_user() trigger from
+            // this metadata (client-side user_roles writes are revoked by RLS).
+            role: "farmer",
           },
         },
       });
@@ -352,17 +344,9 @@ function FarmerSignup() {
       };
       await supabase.from("farmer_profiles").insert(profileInsert);
 
-      // Assign farmer role
-      await supabase.from("user_roles").insert({
-        user_id: userId,
-        role: "farmer" as const,
-      });
-
       setStep(4);
     } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Registration failed. Please try again.",
-      );
+      toast.error(err instanceof Error ? err.message : "Registration failed. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -370,9 +354,7 @@ function FarmerSignup() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0A0F0A] via-[#121A12] to-[#0A0F0A] text-white flex flex-col items-center justify-center p-6">
-      {step < 4 && (
-        <StepIndicator current={step} />
-      )}
+      {step < 4 && <StepIndicator current={step} />}
 
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-8">
@@ -577,11 +559,7 @@ function Step1({
               className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
               tabIndex={-1}
             >
-              {showPassword ? (
-                <EyeOff className="h-4 w-4" />
-              ) : (
-                <Eye className="h-4 w-4" />
-              )}
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
         </FormField>
@@ -842,9 +820,16 @@ function Step3({
           <Phone className="h-3 w-3" /> Step 3 of 3
         </div>
         <h1 className="text-2xl font-bold">Phone Verification</h1>
-        <p className="text-sm text-white/50 mt-1">
-          Enter the 6-digit code sent to your phone
-        </p>
+        <p className="text-sm text-white/50 mt-1">Enter the 6-digit code sent to your phone</p>
+      </div>
+
+      {/* Test-mode notice — SMS verification is simulated for now */}
+      <div className="mb-5 flex items-start gap-2 rounded-xl border border-[#F59E0B]/30 bg-[#F59E0B]/10 px-3 py-2 text-[11px] text-[#FCD34D]">
+        <FlaskConical className="mt-px h-3.5 w-3.5 shrink-0" />
+        <span>
+          <strong>Test mode:</strong> SMS verification isn't live yet — enter any 6 digits to
+          continue.
+        </span>
       </div>
 
       {/* OTP boxes */}
@@ -863,9 +848,7 @@ function Step3({
             onKeyDown={(e) => onOtpKeyDown(i, e)}
             onPaste={i === 0 ? onOtpPaste : undefined}
             className={`w-12 h-14 text-center text-xl font-bold rounded-xl border bg-white/5 text-white outline-none transition-all caret-transparent ${
-              digit
-                ? "border-[#22C55E] bg-[#22C55E]/10"
-                : "border-white/10 focus:border-white/30"
+              digit ? "border-[#22C55E] bg-[#22C55E]/10" : "border-white/10 focus:border-white/30"
             }`}
           />
         ))}
@@ -895,10 +878,9 @@ function Step3({
             className="mt-0.5 border-white/20 data-[state=checked]:bg-[#22C55E] data-[state=checked]:border-[#22C55E]"
           />
           <span className="text-sm text-white/70 leading-snug">
-            I agree to the{" "}
-            <span className="text-[#22C55E]">Terms of Service</span> and{" "}
-            <span className="text-[#22C55E]">Farmer Agreement</span>, including
-            product listing standards and platform commission rates.
+            I agree to the <span className="text-[#22C55E]">Terms of Service</span> and{" "}
+            <span className="text-[#22C55E]">Farmer Agreement</span>, including product listing
+            standards and platform commission rates.
           </span>
         </label>
 
@@ -909,10 +891,8 @@ function Step3({
             className="mt-0.5 border-white/20 data-[state=checked]:bg-[#22C55E] data-[state=checked]:border-[#22C55E]"
           />
           <span className="text-sm text-white/70 leading-snug">
-            I understand the{" "}
-            <span className="text-[#22C55E]">Escrow Release Process</span> —
-            funds are held until buyers confirm receipt and are released within
-            48 hours of delivery.
+            I understand the <span className="text-[#22C55E]">Escrow Release Process</span> — funds
+            are held until buyers confirm receipt and are released within 48 hours of delivery.
           </span>
         </label>
       </div>
@@ -930,17 +910,11 @@ function Step3({
           disabled={!canSubmit}
           className="flex-[2] h-12 bg-[#22C55E] hover:bg-[#16A34A] text-black font-semibold rounded-2xl disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          {submitting ? (
-            <Loader2 className="h-5 w-5 animate-spin" />
-          ) : (
-            "Complete Registration"
-          )}
+          {submitting ? <Loader2 className="h-5 w-5 animate-spin" /> : "Complete Registration"}
         </Button>
       </div>
 
-      <p className="text-center text-xs text-white/30 mt-3">
-        Registered to {email}
-      </p>
+      <p className="text-center text-xs text-white/30 mt-3">Registered to {email}</p>
     </div>
   );
 }
@@ -1037,13 +1011,9 @@ function FormField({
 }) {
   return (
     <div className="space-y-1.5">
-      <Label className="text-xs font-semibold text-white/60 uppercase tracking-wide">
-        {label}
-      </Label>
+      <Label className="text-xs font-semibold text-white/60 uppercase tracking-wide">{label}</Label>
       {children}
-      {error && (
-        <p className="text-xs font-medium text-red-400">{error}</p>
-      )}
+      {error && <p className="text-xs font-medium text-red-400">{error}</p>}
     </div>
   );
 }

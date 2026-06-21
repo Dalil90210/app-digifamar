@@ -4,8 +4,10 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { LayoutDashboard, ShieldCheck, type LucideIcon } from "lucide-react";
 import { type ReactNode } from "react";
-import logoSrc from "@/assets/logo.png";
+import logoAsset from "@/assets/logo.png.asset.json";
 import { NAVY, scoreTier, TIER_META } from "./-data";
+
+const logoSrc = logoAsset.url;
 
 const navItems: { to: string; label: string; icon: LucideIcon }[] = [
   { to: "/lenders/dashboard", label: "Dashboard", icon: LayoutDashboard },
