@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import logoSrc from "@/assets/logo-mark.png";
+import logoSrc from "@/assets/logo-full.png";
 
 export function Logo({
   className = "",
