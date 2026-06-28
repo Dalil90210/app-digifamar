@@ -42,6 +42,8 @@ jobs:
         env:
           LOVABLE_API_KEY: ${{ secrets.LOVABLE_API_KEY }}
           LOVABLE_PROJECT_ID: ${{ secrets.LOVABLE_PROJECT_ID }}
+          LOVABLE_SYNC_REF: ${{ github.ref_name }}
+          LOVABLE_SYNC_STRICT: ${{ startsWith(github.ref, 'refs/tags/v') && 'true' || 'false' }}
           LOVABLE_SYNC_PREFIXES: src/integrations/lovable/
         run: npm run sync:lovable
 

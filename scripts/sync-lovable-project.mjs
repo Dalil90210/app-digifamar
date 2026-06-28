@@ -30,10 +30,24 @@ if (!apiKey || !projectId) {
 const client = new LovableClient({ apiKey });
 const root = process.cwd();
 
-const { files } = await client.listFiles(projectId, ref);
-const selected = files.filter(
+let resolvedRef = ref;
+let listed;
+try {
+  listed = await client.listFiles(projectId, resolvedRef);
+} catch (error) {
+  if (strictMode || resolvedRef === "main") {
+    throw error;
+  }
+  log(`Ref '${resolvedRef}' not found or unreadable, falling back to 'main'.`);
+  resolvedRef = "main";
+  listed = await client.listFiles(projectId, resolvedRef);
+}
+
+const selected = listed.files
+  .filter(
   (f) => !f.binary && prefixes.some((prefix) => f.path.startsWith(prefix)),
-);
+  )
+  .sort((a, b) => a.path.localeCompare(b.path));
 
 if (selected.length === 0) {
   const msg = `No matching text files found at ref '${ref}' for prefixes: ${prefixes.join(", ")}`;
@@ -50,7 +64,7 @@ for (const file of selected) {
     throw new Error(`Unsafe remote path refused: ${file.path}`);
   }
 
-  const content = await client.readFile(projectId, normalized, ref);
+  const content = await client.readFile(projectId, normalized, resolvedRef);
   const target = path.join(root, normalized);
 
   await mkdir(path.dirname(target), { recursive: true });
@@ -58,4 +72,4 @@ for (const file of selected) {
   log(`Updated ${normalized}`);
 }
 
-log(`Sync completed. Updated ${selected.length} file(s) from lovable.dev project ${projectId} @ ${ref}.`);
+log(`Sync completed. Updated ${selected.length} file(s) from lovable.dev project ${projectId} @ ${resolvedRef}.`);
