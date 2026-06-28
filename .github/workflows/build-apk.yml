@@ -38,6 +38,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Sync from lovable.dev
+        env:
+          LOVABLE_API_KEY: ${{ secrets.LOVABLE_API_KEY }}
+          LOVABLE_PROJECT_ID: ${{ secrets.LOVABLE_PROJECT_ID }}
+          LOVABLE_SYNC_PREFIXES: src/integrations/lovable/
+        run: npm run sync:lovable
+
       - name: Build web app
         run: npm run build
 
