@@ -62,13 +62,19 @@ TO authenticated
 WITH CHECK (false);
 
 -- 3) reviews: allow any authenticated user to read (marketplace browsing)
-DROP POLICY IF EXISTS "Reviews viewable by participants" ON public.reviews;
-DROP POLICY IF EXISTS "Reviews viewable by authenticated" ON public.reviews;
-CREATE POLICY "Reviews viewable by authenticated"
-ON public.reviews
-FOR SELECT
-TO authenticated
-USING (true);
+DO $$
+BEGIN
+  IF to_regclass('public.reviews') IS NOT NULL THEN
+    DROP POLICY IF EXISTS "Reviews viewable by participants" ON public.reviews;
+    DROP POLICY IF EXISTS "Reviews viewable by authenticated" ON public.reviews;
+    CREATE POLICY "Reviews viewable by authenticated"
+    ON public.reviews
+    FOR SELECT
+    TO authenticated
+    USING (true);
+  END IF;
+END
+$$;
 
 -- 4) realtime authorization for conversation channels
 -- Allow subscribers to a conversation:<id> topic only if they are a participant.

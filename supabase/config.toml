@@ -1,4 +1,4 @@
-project_id = "qegnvdgnlhnzfnzaifaw"
+project_id = "rlwygbvuukrcxkytzbxf"
 
 # Edge Functions. Each function authenticates the caller itself (Authorization:
 # Bearer <user jwt>) and additionally enforces ownership / admin role in code,

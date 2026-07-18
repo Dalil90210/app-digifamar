@@ -22,6 +22,11 @@ export class AuthService {
         full_name: input.fullName,
         role: input.role,
       },
+      // Only trusted server-side provisioning can set this flag. The DB
+      // trigger uses it to allow admin role assignment.
+      app_metadata: {
+        allow_admin_role: input.role === "admin",
+      },
     });
     if (error || !data.user) {
       throw new Error(error?.message ?? "Failed to create user");

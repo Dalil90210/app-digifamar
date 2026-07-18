@@ -48,7 +48,7 @@ All functions return a consistent envelope:
 ```bash
 # From the repo root. Project ref is in supabase/config.toml.
 supabase login
-supabase link --project-ref qegnvdgnlhnzfnzaifaw
+supabase link --project-ref rlwygbvuukrcxkytzbxf
 
 # 1) Apply the migration (new tables + columns)
 supabase db push
@@ -73,7 +73,7 @@ supabase functions deploy
 ## Quick test (curl)
 
 ```bash
-BASE="https://qegnvdgnlhnzfnzaifaw.supabase.co/functions/v1"
+BASE="https://rlwygbvuukrcxkytzbxf.supabase.co/functions/v1"
 JWT="<a logged-in user's access token>"
 
 # Send an OTP (dev mode echoes dev_code)

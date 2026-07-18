@@ -28,4 +28,15 @@ CREATE TRIGGER trg_enforce_orders_update_restrictions
 -- 3. Remove conversations from realtime publication (no client subscribes to it;
 --    only messages channel is used for chat). Prevents unauthorized realtime
 --    subscriptions to conversation metadata.
-ALTER PUBLICATION supabase_realtime DROP TABLE public.conversations;
+DO $$
+BEGIN
+  IF to_regclass('public.conversations') IS NOT NULL THEN
+    BEGIN
+      ALTER PUBLICATION supabase_realtime DROP TABLE public.conversations;
+    EXCEPTION
+      WHEN undefined_object OR invalid_parameter_value THEN
+        NULL;
+    END;
+  END IF;
+END
+$$;

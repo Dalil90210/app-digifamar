@@ -39,3 +39,9 @@ android/keystore.properties
 *.njsproj
 *.sln
 *.sw?
+
+# Supabase CLI local temp state
+supabase/.temp/
+
+# Local schema audit artifacts
+.tmp/schema-audit/
