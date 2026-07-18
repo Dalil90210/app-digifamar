@@ -137,7 +137,7 @@ Deno.serve(async (req) => {
 
   const { error: insErr } = await svc.from("order_otps").insert({
     order_id: orderId,
-    phone,
+    phone: authPhone,
     code_hash: codeHash,
     expires_at: expiresAt,
   });
