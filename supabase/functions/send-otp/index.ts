@@ -16,6 +16,11 @@ const OTP_TTL_MINUTES = 10;
 const MAX_OTP_SENDS_PER_HOUR = 5;
 const RATE_WINDOW_MS = 60 * 60 * 1000;
 
+function normalizePhone(phone: string | null | undefined): string | null {
+  const digits = (phone ?? "").replace(/\D+/g, "");
+  return digits.length > 0 ? digits : null;
+}
+
 function generateOtpCode(): string {
   // Rejection sampling avoids modulo bias for 6-digit code generation.
   const max = 0x1_0000_0000; // 2^32
@@ -59,10 +64,11 @@ Deno.serve(async (req) => {
   if (authErr) return fail(authErr.message, 500, origin);
 
   const authPhone = authData.user?.phone?.trim() ?? null;
+  const normalizedAuthPhone = normalizePhone(authPhone);
   const phoneConfirmed = !!(
     authData.user as { phone_confirmed_at?: string | null } | undefined
   )?.phone_confirmed_at;
-  if (!authPhone) {
+  if (!authPhone || !normalizedAuthPhone) {
     return fail("No phone number on account", 400, origin);
   }
   if (!phoneConfirmed) {
@@ -76,10 +82,11 @@ Deno.serve(async (req) => {
     .maybeSingle();
   if (profileErr) return fail(profileErr.message, 500, origin);
   const profilePhone = profile?.phone?.trim() ?? null;
-  if (!profilePhone) {
+  const normalizedProfilePhone = normalizePhone(profilePhone);
+  if (!profilePhone || !normalizedProfilePhone) {
     return fail("No profile phone configured", 400, origin);
   }
-  if (profilePhone !== authPhone) {
+  if (normalizedProfilePhone !== normalizedAuthPhone) {
     return fail("Profile phone mismatch; update your profile phone", 409, origin);
   }
 
@@ -143,7 +150,7 @@ Deno.serve(async (req) => {
   });
   if (insErr) return fail(insErr.message, 500, origin);
 
-  // --- Deliver via SMS ------------------------------------------------------
+  // --- Deliver via Vonage SMS (through shared sender) -----------------------
   let sms;
   try {
     sms = await sendSms(
