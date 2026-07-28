@@ -16,6 +16,11 @@ const OTP_TTL_MINUTES = 10;
 const MAX_OTP_SENDS_PER_HOUR = 5;
 const RATE_WINDOW_MS = 60 * 60 * 1000;
 
+function normalizePhone(phone: string | null | undefined): string | null {
+  const digits = (phone ?? "").replace(/\D+/g, "");
+  return digits.length > 0 ? digits : null;
+}
+
 function generateOtpCode(): string {
   // Rejection sampling avoids modulo bias for 6-digit code generation.
   const max = 0x1_0000_0000; // 2^32
